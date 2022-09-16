@@ -1,7 +1,39 @@
 import './styles/boot.css'
-import { MagnifyingGlassPlus } from 'phosphor-react'
+import { useState, useEffect } from 'react'
+import * as Dialog from '@radix-ui/react-dialog'
+
 import brand from './assets/brand.svg'
+import { CallToAction } from './components/CallToAction'
+import { GameCard } from './components/GameCard'
+import { GameController } from 'phosphor-react'
+import { Input } from './components/Form/Input'
+
+type Game = {
+  id: string
+  title: string
+  bannerUrl: string
+  _count: {
+    ads: number
+  }
+}
 const App = () => {
+  const [games, setGames] = useState<Game[]>([])
+
+  useEffect(() => {
+    const getGames = () => {
+      fetch('http://localhost:3333/games')
+        .then((response) => response.json())
+        .then((data) => {
+          setGames(data)
+        })
+        .catch((e) => {
+          console.log(e)
+        })
+    }
+
+    getGames()
+  }, [])
+
   return (
     <div className="max-w-[1344px] mx-auto flex flex-col items-center my-20">
       <img src={brand} alt="" />
@@ -14,112 +46,153 @@ const App = () => {
       </h1>
 
       <div className={'grid grid-cols-6 gap-6 mt-16'}>
-        <a href="" className={'relative rounded-lg overflow-hidden'}>
-          <img src="/g-01.png" alt="" />
-          <div
-            className={
-              ' bg-box-game-gradient w-full pt-16 pb-4 px-4 absolute bottom-0 left-0 right-0'
-            }
-          >
-            <strong className={'font-bold text-white block'}>
-              League of Legends
-            </strong>
-            <span className={'text-zinc-300 block'}>4 Anuncios</span>
-          </div>
-        </a>
-
-        <a href="" className={'relative  rounded-lg overflow-hidden'}>
-          <img src="/g-02.png" alt="" />
-          <div
-            className={
-              ' bg-box-game-gradient w-full pt-16 pb-4 px-4 absolute bottom-0 left-0 right-0'
-            }
-          >
-            <strong className={'font-bold text-white block'}>
-              League of Legends
-            </strong>
-            <span className={'text-zinc-300 block'}>4 Anuncios</span>
-          </div>
-        </a>
-
-        <a href="" className={'relative  rounded-lg overflow-hidden'}>
-          <img src="/g-03.png" alt="" />
-          <div
-            className={
-              ' bg-box-game-gradient w-full pt-16 pb-4 px-4 absolute bottom-0 left-0 right-0'
-            }
-          >
-            <strong className={'font-bold text-white block'}>
-              League of Legends
-            </strong>
-            <span className={'text-zinc-300 block'}>4 Anuncios</span>
-          </div>
-        </a>
-
-        <a href="" className={'relative  rounded-lg overflow-hidden'}>
-          <img src="/g-04.png" alt="" />
-          <div
-            className={
-              ' bg-box-game-gradient w-full pt-16 pb-4 px-4 absolute bottom-0 left-0 right-0'
-            }
-          >
-            <strong className={'font-bold text-white block'}>
-              League of Legends
-            </strong>
-            <span className={'text-zinc-300 block'}>4 Anuncios</span>
-          </div>
-        </a>
-
-        <a href="" className={'relative  rounded-lg overflow-hidden '}>
-          <img src="/g-05.png" alt="" />
-          <div
-            className={
-              ' bg-box-game-gradient w-full pt-16 pb-4 px-4 absolute bottom-0 left-0 right-0'
-            }
-          >
-            <strong className={'font-bold text-white block'}>
-              League of Legends
-            </strong>
-            <span className={'text-zinc-300 block'}>4 Anuncios</span>
-          </div>
-        </a>
-
-        <a href="" className={'relative  rounded-lg overflow-hidden'}>
-          <img src="/g-06.png" alt="" />
-          <div
-            className={
-              ' bg-box-game-gradient w-full pt-16 pb-4 px-4 absolute bottom-0 left-0 right-0'
-            }
-          >
-            <strong className={'font-bold text-white block'}>
-              League of Legends
-            </strong>
-            <span className={'text-zinc-300 block'}>4 Anuncios</span>
-          </div>
-        </a>
+        {games.map((game) => (
+          <GameCard
+            key={game.id}
+            bannerUrl={game.bannerUrl}
+            title={game.title}
+            adsCount={game._count.ads}
+          />
+        ))}
       </div>
-
-      <div className="pt-1 bg-nlw-esports self-stretch rounded-lg mt-8 overflow-hidden">
-        <div className="bg-[#2a2634] px-8 py-6 flex justify-between items-center">
-          <div className="">
-            <strong className={'text-2xl text-white font-black block'}>
-              Não encontrou seu duo?
-            </strong>
-            <span className={'text-zinc-400 block'}>
-              Publique um anúncio para encontrar novos players!
-            </span>
-          </div>
-
-          <button
+      <Dialog.Root>
+        <CallToAction />
+        <Dialog.Portal>
+          <Dialog.Overlay className={'bg-black/60 inset-0 fixed'} />
+          <Dialog.Content
             className={
-              'flex items-center gap-3 py-3 px-4 bg-violet-500 text-white rounded hover:bg-violet-600'
+              'bg-[#2a2634] fixed py-8 px-10 text-white top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-lg w-[480px] shadow-lg shadow-black/25 '
             }
           >
-            <MagnifyingGlassPlus size={24} />
-            Publicar anúcio
-          </button>
-        </div>
-      </div>
+            <Dialog.Title className={'text-3xl font-black'}>
+              Publique um anúncio
+            </Dialog.Title>
+
+            <form className={'mt-8 flex flex-col gap-4'}>
+              <div className={'flex flex-col gap-2'}>
+                <label className={'font-semibold'} htmlFor="game">
+                  Qual o game ?
+                </label>
+                <Input
+                  id={'game'}
+                  type={'text'}
+                  placeholder={'Qual o jogo que deseja jogra?'}
+                />
+              </div>
+
+              <div className={'flex flex-col gap-2'}>
+                <label htmlFor="name">Seu nome (ou nickname)</label>
+                <Input
+                  id={'name'}
+                  type="text"
+                  placeholder={'Qual o seu nome no game?'}
+                />
+              </div>
+              <div className={'grid grid-cols-2 gap-6'}>
+                <div className={'flex flex-col gap-2'}>
+                  <label htmlFor="yearsPlaying">Joga há quantos anos?</label>
+                  <Input
+                    id={'yearsPlaying'}
+                    type="number"
+                    placeholder={'Tudo bem ser ZERO'}
+                  />
+                </div>
+
+                <div className={'flex flex-col gap-2'}>
+                  <label htmlFor="discord">Qual seu Discord?</label>
+                  <Input
+                    id={'discord'}
+                    type="text"
+                    placeholder={'Usuario#0000'}
+                  />
+                </div>
+              </div>
+
+              <div className={'flex gap-6'}>
+                <div className={'flex flex-col gap-2'}>
+                  <label htmlFor="">Quando costuma jogar?</label>
+                  <div className={'grid grid-cols-4 gap-2'}>
+                    <button
+                      title={'Domingo'}
+                      className={'h-8 w-8 rounded bg-zinc-900'}
+                    >
+                      D
+                    </button>
+
+                    <button
+                      title={'Domingo'}
+                      className={'h-8 w-8 rounded bg-zinc-900'}
+                    >
+                      D
+                    </button>
+
+                    <button
+                      title={'Domingo'}
+                      className={'h-8 w-8 rounded bg-zinc-900'}
+                    >
+                      D
+                    </button>
+                    <button
+                      title={'Domingo'}
+                      className={'h-8 w-8 rounded bg-zinc-900'}
+                    >
+                      D
+                    </button>
+                    <button
+                      title={'Domingo'}
+                      className={'h-8 w-8 rounded bg-zinc-900'}
+                    >
+                      D
+                    </button>
+                    <button
+                      title={'Domingo'}
+                      className={'h-8 w-8 rounded bg-zinc-900'}
+                    >
+                      D
+                    </button>
+                    <button
+                      title={'Domingo'}
+                      className={'h-8 w-8 rounded bg-zinc-900'}
+                    >
+                      D
+                    </button>
+                  </div>
+                </div>
+                <div className={'flex flex-1 flex-col gap-2 '}>
+                  <label htmlFor="hourStart">Qual horário do dia?</label>
+                  <div className={'grid grid-cols-2 gap-2'}>
+                    <Input type={'time'} id={'hourStart'} placeholder={'De'} />
+                    <Input type={'time'} id={'hourEnd'} placeholder={'Até'} />
+                  </div>
+                </div>
+              </div>
+
+              <div className={'mt-2 flex gap-2 text-sm'}>
+                <Input type={'checkbox'} />
+                Costumo me conectar ao chat de voz
+              </div>
+
+              <footer className={'mt-4 flex justify-end gap-4'}>
+                <Dialog.Close
+                  className={
+                    'flex items-center px-5 bg-zinc-500 h-12 rounded-md font-semibold hover:bg-zinc-600'
+                  }
+                >
+                  Cancelar
+                </Dialog.Close>
+                <button
+                  className={
+                    'px-5 bg-violet-500 h-12 rounded-md font-semibold flex items-center gap-3 hover:bg-violet-600'
+                  }
+                >
+                  <GameController className={'h-6 w-6'} />
+                  Encontrar duo
+                </button>
+              </footer>
+            </form>
+          </Dialog.Content>
+        </Dialog.Portal>
+      </Dialog.Root>
     </div>
   )
 }
