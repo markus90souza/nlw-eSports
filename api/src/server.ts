@@ -52,6 +52,7 @@ app.get('/games/:id/ads', async (request, response ) => {
     select:{
       id: true,
       name: true,
+      yearsPlaying: true,
       weekDays: true,
       hourStart: true,
       hourEnd: true,
